@@ -1,3 +1,16 @@
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('load')
+    fetch('/game/')
+        .then(response => response.json())
+        .then(data => {
+            const board = data.board;
+            const score = data.score;
+
+            updateBoard(board, score);  // 更新棋盤顏色
+        })
+        .catch(error => console.error('Error loading game data:', error));
+});
+
 document.addEventListener('keydown', (event) => {
     let direction;
     switch (event.key) {
@@ -51,16 +64,6 @@ function move(direction) {
         }
     })
     .catch(error => console.error('Fetch error:', error));
-}
-
-function updateBoard(board, score) {
-    const cells = document.querySelectorAll('.cell');
-    cells.forEach((cell, index) => {
-        const row = Math.floor(index / 4);
-        const col = index % 4;
-        cell.textContent = board[row][col] === 0 ? '' : board[row][col];
-    });
-    document.getElementById('score').textContent = score;
 }
 
 
@@ -160,3 +163,34 @@ document.getElementById('logout-btn').addEventListener('click', function() {
         console.error('Error:', error);
     });
 });
+
+function updateBoard(board, score) {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach((cell, index) => {
+        const row = Math.floor(index / 4);
+        const col = index % 4;
+        cell.textContent = board[row][col] === 0 ? '' : board[row][col];
+        cell.style.backgroundColor = getColorForValue(board[row][col]);
+        cell.style.color = board[row][col] > 4 ? 'white' : 'black'; // 小數字用黑色，大數字用白色字體
+    });
+    document.getElementById('score').textContent = score;
+}
+
+function getColorForValue(value) {
+    switch (value) {
+        case 0: return '#ccc';       // 空格子
+        case 2: return '#eee4da';    // 2
+        case 4: return '#ede0c8';    // 4
+        case 8: return '#f2b179';    // 8
+        case 16: return '#f59563';   // 16
+        case 32: return '#f67c5f';   // 32
+        case 64: return '#f65e3b';   // 64
+        case 128: return '#edcf72';  // 128
+        case 256: return '#edcc61';  // 256
+        case 512: return '#edc850';  // 512
+        case 1024: return '#edc53f'; // 1024
+        case 2048: return '#edc22e'; // 2048
+        default: return '#3c3a32';   // 大於2048
+    }
+}
+
